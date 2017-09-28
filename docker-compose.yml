@@ -1,0 +1,21 @@
+version: '3.0'
+
+services:
+    mq:
+        image: rabbitmq  # for celery
+
+    worker:
+        build: .
+        volumes:
+            - .:/app
+        links:
+            - rabbit
+        depends_on:
+            - mq
+        environment:
+            - RABBIT_MQ_HOST=mq
+        working_dir: /app
+        command: celery -A test_celery worker -Q test_queue --concurrency=20 --loglevel=info
+        links:
+            - mq
+
